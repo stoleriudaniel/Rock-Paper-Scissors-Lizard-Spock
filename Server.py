@@ -1,40 +1,37 @@
 import socket
 
-HOST = "127.0.0.1"
-PORT = 32017
-MAX_CLIENTS = 2
+IP = socket.gethostbyname(socket.gethostname())
+PORT = 5480
+ADDR = (IP, PORT)
+TEXT_MAXIMUM_SIZE = 1024
+FORMAT = "utf-8"
+DISCONNECT_MSG = "EXIT"
+CONN_ACCEPTED_MESSAGE = "[SERVER] Connection accepted. Welcome!"
+CONN_FAILED_MESSAGE = "[SERVER] Connection failed! Server is full. Try again later."
+MAXIMUM_CONNECTIONS = 3
+CURR_CONNECTIONS = 0
 
 
-class ThreadedServer(object):
-    maximumNoClientsMessagePrinted = False
-
-    def __init__(self, host, port, maxClients):
-        self.host = host
-        self.port = port
-        self.maxClients = maxClients
-        self.connected_clients = 0
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((self.host, self.port))
-        self.maximumNoClientsMessagePrinted = False
-
-    def listen(self):
-        self.sock.listen()
-
-        while True:
-
-            if self.maximumNoClientsMessagePrinted is False and self.connected_clients >= self.maxClients:
-                print("Maximum number of clients reached")
-                self.maximumNoClientsMessagePrinted = True
-                continue
-            if self.connected_clients < self.maxClients:
-                client, address = self.sock.accept()
-                # keep track connected clients
-                self.connected_clients += 1
-
-            # start a new thread to send data to the connected client
-            # start a new thread to receive data to the connected client
+def server():
+    print("[SERVER] Starting...")
+    serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serv.bind(ADDR)
+    serv.listen()
+    print(f"[SERVER] Server is listening on {IP}:{PORT}")
+    global CURR_CONNECTIONS
+    while True:
+        if CURR_CONNECTIONS < MAXIMUM_CONNECTIONS:
+            conn, addr = serv.accept()
+            CURR_CONNECTIONS = CURR_CONNECTIONS + 1
+            print(f"[SERVER] Active connections: {CURR_CONNECTIONS}")
+            conn.send(CONN_ACCEPTED_MESSAGE.encode(FORMAT))
+            if CURR_CONNECTIONS == MAXIMUM_CONNECTIONS:
+                print("[SERVER] Maximum connections achieved")
+        else:
+            conn, addr = serv.accept()
+            conn.send(CONN_FAILED_MESSAGE.encode(FORMAT))
+            conn.close()
 
 
 if __name__ == "__main__":
-    ThreadedServer(HOST, PORT, MAX_CLIENTS).listen()
+    server()
