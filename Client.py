@@ -1,22 +1,37 @@
 import socket
 
-HOST = "127.0.0.1"
-PORT = 32017
+IP = socket.gethostbyname(socket.gethostname())
+PORT = 5480
+ADDR = (IP, PORT)
+TEXT_MAXIMUM_SIZE = 1024
+FORMAT = "utf-8"
+DISCONNECT_MSG = "EXIT"
+CONN_ACCEPTED_MESSAGE = "[SERVER] Connection accepted. Welcome!"
+CONN_FAILED_MESSAGE = "[SERVER] Connection failed! Server is full. Try again later."
+connected = False
 
 
-class ThreadedClient(object):
+def client():
+    global connected
+    cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    cli.connect(ADDR)
+    resultMsg = cli.recv(TEXT_MAXIMUM_SIZE).decode(FORMAT)
+    if resultMsg == CONN_ACCEPTED_MESSAGE:
+        print(CONN_ACCEPTED_MESSAGE)
+        connected = True
+    else:
+        print(resultMsg)
+    while connected:
+        msg = input("[CLIENT]:")
 
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cli.send(msg.encode(FORMAT))
 
-    def send(self):
-        self.sock.connect((self.host, self.port))
-
-        # start a new thread to receive data to the server
-        # start a new thread to send data to the server
+        if msg == DISCONNECT_MSG:
+            connected = False
+        else:
+            msg = cli.recv(TEXT_MAXIMUM_SIZE).decode(FORMAT)
+            print(f"[SERVER] {msg}")
 
 
 if __name__ == "__main__":
-    ThreadedClient(HOST, PORT).send()
+    client()
