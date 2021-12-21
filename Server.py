@@ -1,5 +1,6 @@
 import socket
 import threading
+import random
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5480
@@ -13,21 +14,26 @@ MAXIMUM_CONNECTIONS = 3
 CURR_CONNECTIONS = 0
 
 possible_options = ["ROCK", "PAPER", "SCISSORS", "LIZARD", "SPOCK"]
-rounds = []
 
-
-def is_valid_option(option):
+def valid_option(option):
     return option in possible_options
 
 
 def handle_client(conn, addr):
     global CURR_CONNECTIONS
+    rounds = []
     connected = True
     while connected:
-        message = conn.recv(TEXT_MAXIMUM_SIZE).decode(FORMAT)
-        if message == EXIT_MESSAGE:
+        option = conn.recv(TEXT_MAXIMUM_SIZE).decode(FORMAT)
+        if option == EXIT_MESSAGE:
             connected = False
-        conn.send(message.encode(FORMAT))
+        elif valid_option(option) is False:
+            message = "Your option is not valid!"
+            conn.send(message.encode(FORMAT))
+        elif valid_option(option) is True:
+            message = "Your option is valid!"
+            conn.send(message.encode(FORMAT))
+
     conn.close()
     CURR_CONNECTIONS = CURR_CONNECTIONS - 1
     print(f"[SERVER] Active connections: {CURR_CONNECTIONS}")
