@@ -15,8 +15,23 @@ CURR_CONNECTIONS = 0
 
 possible_options = ["ROCK", "PAPER", "SCISSORS", "LIZARD", "SPOCK"]
 
+
 def valid_option(option):
     return option in possible_options
+
+
+def option1_bigger_than_option2(option1, option2):
+    return [option1, option2] in [
+        ["SCISSORS", "PAPER"],
+        ["PAPER", "ROCK"],
+        ["ROCK", "LIZARD"],
+        ["LIZARD", "SPOCK"],
+        ["SPOCK", "SCISSORS"],
+        ["SCISSORS", "LIZARD"],
+        ["LIZARD", "PAPER"],
+        ["PAPER", "SPOCK"],
+        ["SPOCK", "ROCK"]
+    ]
 
 
 def handle_client(conn, addr):
@@ -24,15 +39,17 @@ def handle_client(conn, addr):
     rounds = []
     connected = True
     while connected:
-        option = conn.recv(TEXT_MAXIMUM_SIZE).decode(FORMAT)
-        if option == EXIT_MESSAGE:
+        client_option = conn.recv(TEXT_MAXIMUM_SIZE).decode(FORMAT)
+        if client_option == EXIT_MESSAGE:
             connected = False
-        elif valid_option(option) is False:
+        elif valid_option(client_option) is False:
             message = "Your option is not valid!"
             conn.send(message.encode(FORMAT))
-        elif valid_option(option) is True:
+        elif valid_option(client_option) is True:
             message = "Your option is valid!"
             conn.send(message.encode(FORMAT))
+            random_index = random.randint(0, 4)
+            server_option = possible_options[random_index]
 
     conn.close()
     CURR_CONNECTIONS = CURR_CONNECTIONS - 1
