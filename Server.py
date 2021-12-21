@@ -12,6 +12,13 @@ CONN_FAILED_MESSAGE = "[SERVER] Connection failed! Server is full. Try again lat
 MAXIMUM_CONNECTIONS = 3
 CURR_CONNECTIONS = 0
 
+possible_options = ["ROCK", "PAPER", "SCISSORS", "LIZARD", "SPOCK"]
+rounds = []
+
+
+def is_valid_option(option):
+    return option in possible_options
+
 
 def handle_client(conn, addr):
     global CURR_CONNECTIONS
@@ -24,6 +31,7 @@ def handle_client(conn, addr):
     conn.close()
     CURR_CONNECTIONS = CURR_CONNECTIONS - 1
     print(f"[SERVER] Active connections: {CURR_CONNECTIONS}")
+
 
 def server():
     print("[SERVER] Starting...")
