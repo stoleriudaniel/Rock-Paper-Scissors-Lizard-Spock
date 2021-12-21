@@ -16,6 +16,7 @@ CURR_CONNECTIONS = 0
 possible_options = ["ROCK", "PAPER", "SCISSORS", "LIZARD", "SPOCK"]
 players = ["SERVER", "CLIENT"]
 
+
 def valid_option(option):
     return option in possible_options
 
@@ -30,7 +31,8 @@ def option1_bigger_than_option2(option1, option2):
         ["SCISSORS", "LIZARD"],
         ["LIZARD", "PAPER"],
         ["PAPER", "SPOCK"],
-        ["SPOCK", "ROCK"]
+        ["SPOCK", "ROCK"],
+        ["ROCK", "SCISSORS"]
     ]
 
 
@@ -63,7 +65,12 @@ def handle_client(conn, addr):
                     message = f"Server choose {server_option}. You win!\n"
                 message = message + "Rounds([SERVER, CLIENT]):\n"
                 for round in rounds:
-                    message = message + f"{round}"
+                    message = message + f"{round}\n"
+            elif winner == -1:
+                message = f"Server choose {server_option}. Give your option:"
+            print("winner:", winner)
+            print("client_option:", client_option)
+            print("server_option:", server_option)
             conn.send(message.encode(FORMAT))
     print("winner:", winner)
     print("rounds:", rounds)
