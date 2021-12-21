@@ -11,6 +11,14 @@ CONN_FAILED_MESSAGE = "[SERVER] Connection failed! Server is full. Try again lat
 connected = False
 
 
+def game_over(message):
+    if message.find('You win!') != -1:
+        return True
+    if message.find('You lose!') != -1:
+        return True
+    return False
+
+
 def client():
     global connected
     cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,6 +39,8 @@ def client():
         else:
             msg = cli.recv(TEXT_MAXIMUM_SIZE).decode(FORMAT)
             print(f"[SERVER] {msg}")
+            if game_over(msg):
+                connected = False
 
 
 if __name__ == "__main__":
